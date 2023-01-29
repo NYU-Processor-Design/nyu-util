@@ -10,6 +10,10 @@ class VerilatorCoverageReporter : public Catch::EventListenerBase {
 public:
   using Catch::EventListenerBase::EventListenerBase;
 
+  void testCaseStarting(const Catch::TestCaseInfo&) override {
+    Verilated::threadContextp()->coveragep()->clear();
+  }
+
   void testCaseEnded(const Catch::TestCaseStats& stats) override {
     Verilated::threadContextp()->coveragep()->write(
         (stats.testInfo->name + ".dat").data());
