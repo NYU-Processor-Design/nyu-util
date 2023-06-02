@@ -33,12 +33,20 @@ target_link_libraries(covrecorder INTERFACE
   $<LINK_LIBRARY:WHOLE_ARCHIVE,$<BUILD_INTERFACE:__cvr>$<INSTALL_INTERFACE:nyu::__cvr>>
 )
 
+add_library(testutil INTERFACE)
+target_sources(testutil INTERFACE
+  FILE_SET HEADERS
+  BASE_DIRS src
+  FILES src/NyuTestUtil.hpp
+)
+
 include(CMakePackageConfigHelpers)
 include(GNUInstallDirs)
 
 install(
-  TARGETS __cvr covrecorder
+  TARGETS __cvr covrecorder testutil
   EXPORT nyuUtilTargets
+  FILE_SET HEADERS
 )
 
 install(
