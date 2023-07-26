@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 3.24)
+cmake_minimum_required(VERSION 3.27)
 
 if(NOT DEFINED CMAKE_TOOLCHAIN_FILE)
   include(FetchContent)
@@ -20,7 +20,7 @@ add_custom_target(UpdateVcpkgBaseline
   ${VCPKG_ROOT_DIR}/vcpkg x-update-baseline
 )
 
-project(nyu-util VERSION 1.0.1)
+project(nyu-util VERSION 1.1.2)
 
 find_package(Catch2 3 CONFIG REQUIRED)
 find_package(verilator CONFIG REQUIRED)
@@ -34,6 +34,7 @@ target_link_libraries(covrecorder INTERFACE
 )
 
 add_library(testutil INTERFACE)
+target_include_directories(testutil INTERFACE ${VERILATOR_ROOT}/include)
 target_sources(testutil INTERFACE
   FILE_SET HEADERS
   BASE_DIRS src
