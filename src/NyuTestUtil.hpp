@@ -82,6 +82,11 @@ template <traceable T> void reset(tracer<T>& tracer) {
   tracer.dut.nReset = 1;
 }
 
+template <typename T> T& getDUT() {
+  static T* p {new T};
+  return *p;
+}
+
 } // namespace nyu
 
 #endif // NYU_TEST_UTIL_HPP
