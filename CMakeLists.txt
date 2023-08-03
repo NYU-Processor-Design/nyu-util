@@ -20,7 +20,7 @@ add_custom_target(UpdateVcpkgBaseline
   ${VCPKG_ROOT_DIR}/vcpkg x-update-baseline
 )
 
-project(nyu-util VERSION 1.1.2)
+project(nyu-util VERSION 1.1.4)
 
 find_package(Catch2 3 CONFIG REQUIRED)
 find_package(verilator CONFIG REQUIRED)

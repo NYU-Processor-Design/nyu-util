@@ -22,13 +22,13 @@ concept resetable = requires(T a) {
   a.eval();
 };
 
-template<typename T>
-concept traceable =
-    tickable<T> &&
-    resetable<T> &&
-    requires(T a, VerilatedFstC fst) {
+template <typename T>
+concept traceable = requires(T a, VerilatedFstC fst) {
   a.trace(&fst, 1);
 };
+
+template<typename T>
+concept sync_traceable = tickable<T> && resetable<T> && traceable<T>;
 // clang-format on
 
 template <traceable T> struct tracer {
@@ -44,6 +44,13 @@ template <traceable T> struct tracer {
   std::uint64_t time {0};
 };
 
+template <traceable T> void eval(tracer<T>& tracer, size_t cycles = 1) {
+  for(size_t i {0}; i < cycles; ++i) {
+    tracer.dut.eval();
+    tracer.fst.dump(tracer.time++);
+  }
+}
+
 void tick(tickable auto& dut, std::size_t cycles = 1) {
   for(size_t i {0}; i < cycles; ++i) {
     dut.clk = 0;
@@ -53,14 +60,13 @@ void tick(tickable auto& dut, std::size_t cycles = 1) {
   }
 }
 
-template <traceable T> void tick(tracer<T>& tracer, std::size_t cycles = 1) {
+template <sync_traceable T>
+void tick(tracer<T>& tracer, std::size_t cycles = 1) {
   for(size_t i {0}; i < cycles; ++i) {
     tracer.dut.clk = 0;
-    tracer.dut.eval();
-    tracer.fst.dump(tracer.time++);
+    eval(tracer);
     tracer.dut.clk = 1;
-    tracer.dut.eval();
-    tracer.fst.dump(tracer.time++);
+    eval(tracer);
   }
 }
 
@@ -72,13 +78,11 @@ void reset(resetable auto& dut) {
   dut.nReset = 1;
 }
 
-template <traceable T> void reset(tracer<T>& tracer) {
+template <sync_traceable T> void reset(tracer<T>& tracer) {
   tracer.dut.nReset = 1;
-  tracer.dut.eval();
-  tracer.fst.dump(tracer.time++);
+  eval(tracer);
   tracer.dut.nReset = 0;
-  tracer.dut.eval();
-  tracer.fst.dump(tracer.time++);
+  eval(tracer);
   tracer.dut.nReset = 1;
 }
 
