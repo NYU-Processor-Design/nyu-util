@@ -10,16 +10,21 @@
 namespace nyu {
 
 // clang-format off
-template<typename T>
-concept tickable = requires (T a) {
-  a.clk;
+template <typename T>
+concept evalable = requires(T a) {
   a.eval();
 };
 
 template<typename T>
-concept resetable = requires(T a) {
-  a.nReset;
+concept tickable = requires (T a) {
   a.eval();
+  a.clk;
+};
+
+template<typename T>
+concept resetable = requires(T a) {
+  a.eval();
+  a.nReset;
 };
 
 template <typename T>
@@ -44,7 +49,13 @@ template <traceable T> struct tracer {
   std::uint64_t time {0};
 };
 
-template <traceable T> void eval(tracer<T>& tracer, size_t cycles = 1) {
+template <evalable T> void eval(T& dut, std::size_t cycles = 1) {
+  for(size_t i {0}; i < cycles; ++i) {
+    dut.eval();
+  }
+}
+
+template <traceable T> void eval(tracer<T>& tracer, std::size_t cycles = 1) {
   for(size_t i {0}; i < cycles; ++i) {
     tracer.dut.eval();
     tracer.fst.dump(tracer.time++);
