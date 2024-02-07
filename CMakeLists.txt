@@ -1,6 +1,6 @@
 cmake_minimum_required(VERSION 3.27)
 
-if(NOT DEFINED CMAKE_TOOLCHAIN_FILE)
+if(NOT DEFINED SKIP_VCPKG AND NOT DEFINED CMAKE_TOOLCHAIN_FILE)
   include(FetchContent)
   FetchContent_Declare(
     vcpkg
@@ -16,17 +16,19 @@ if(NOT DEFINED CMAKE_TOOLCHAIN_FILE)
   set(VCPKG_ROOT_DIR ${vcpkg_SOURCE_DIR} CACHE PATH "Vcpkg Root Directory")
 endif()
 
-add_custom_target(UpdateVcpkgBaseline
-  ${VCPKG_ROOT_DIR}/vcpkg x-update-baseline
-)
+if(DEFINED VCPKG_ROOT_DIR)
+  add_custom_target(UpdateVcpkgBaseline
+    ${VCPKG_ROOT_DIR}/vcpkg x-update-baseline
+  )
+endif()
 
-project(nyu-util VERSION 1.1.5)
+project(nyu-util VERSION 1.2.0)
 
 find_package(Catch2 3 CONFIG REQUIRED)
 find_package(verilator CONFIG REQUIRED)
 
 add_library(__cvr STATIC src/CovRecorder.cpp)
-target_link_libraries(__cvr PRIVATE Catch2::Catch2)
+target_link_libraries(__cvr PUBLIC Catch2::Catch2)
 target_include_directories(__cvr PRIVATE ${VERILATOR_ROOT}/include)
 add_library(covrecorder INTERFACE)
 target_link_libraries(covrecorder INTERFACE
@@ -34,6 +36,7 @@ target_link_libraries(covrecorder INTERFACE
 )
 
 add_library(testutil INTERFACE)
+target_link_libraries(testutil INTERFACE Catch2::Catch2)
 target_include_directories(testutil INTERFACE ${VERILATOR_ROOT}/include)
 target_sources(testutil INTERFACE
   FILE_SET HEADERS
