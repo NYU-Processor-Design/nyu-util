@@ -27,7 +27,7 @@ concept resetable = requires(T a) {
 };
 
 template <typename T>
-concept traceable = requires(T a, VerilatedFstC fst) { a.trace(&fst, 1); };
+concept traceable = T::traceCapable == true;
 
 template <typename T>
 concept not_traceable = evalable<T> && !traceable<T>;
