@@ -17,6 +17,38 @@
 namespace nyu {
 
 
+// Macros
+
+#define NYU_META_ASSIGNABLE_CONCEPTS(NAME, MEMBER)                             \
+  template <class T, class R>                                                  \
+  concept NAME = requires(T t, R r) { t.MEMBER = r; };                         \
+                                                                               \
+  template <class T, class R>                                                  \
+  concept nothrow_##NAME = requires(T t, R r) {                                \
+    { t.MEMBER = r } noexcept;                                                 \
+  };
+
+#define NYU_META_MEMBER_CALLABLE_CONCEPTS(NAME, METHOD)                        \
+  template <class T, class... Args>                                            \
+  concept NAME =                                                               \
+      requires(T t, Args&&... as) { (t.METHOD)(static_cast<Args&&>(as)...); }; \
+                                                                               \
+  template <class T, class... Args>                                            \
+  concept nothrow_##NAME = requires(T t, Args&&... as) {                       \
+    { (t.METHOD)(static_cast<Args&&>(as)...) } noexcept;                       \
+  };
+
+#define NYU_META_CALLABLE_CONCEPTS(NAME, FUNCTION)                             \
+  template <class T, class... Args>                                            \
+  concept NAME = requires(T t, Args&&... as) {                                 \
+    (FUNCTION)(t, static_cast<Args&&>(as)...);                                 \
+  };                                                                           \
+                                                                               \
+  template <class T, class... Args>                                            \
+  concept nothrow_##NAME = requires(T t, Args&&... as) {                       \
+    { (FUNCTION)(t, static_cast<Args&&>(as)...) } noexcept;                    \
+  };
+
 // Concepts
 
 template <typename Tag, typename... Args>
@@ -27,36 +59,17 @@ template <typename Tag, typename... Args>
 concept nothrow_tag_invocable = tag_invocable<Tag, Args...> &&
     noexcept(tag_invoke(std::declval<Tag>(), std::declval<Args>()...));
 
-template <typename T>
-concept has_eval = requires(T t) { t.eval(); };
-
-template <typename T>
-concept nothrow_has_eval = requires(T t) {
-  { t.eval() } noexcept;
-};
-
-template <typename T, typename R = int>
-concept has_clk_assign_from = requires(T t, R r) { t.clk = r; };
-
-template <typename T, typename R = int>
-concept nothrow_has_clk_assign_from = requires(T t, R r) {
-  { t.clk = r } noexcept;
-};
-
-template <typename T, typename R = int>
-concept has_nreset_assign_from = requires(T t, R r) { t.nReset = r; };
-
-template <typename T, typename R = int>
-concept nothrow_has_nreset_assign_from = requires(T t, R r) {
-  { t.nReset = r } noexcept;
-};
+NYU_META_MEMBER_CALLABLE_CONCEPTS(has_eval, eval)
+NYU_META_ASSIGNABLE_CONCEPTS(has_clk_assign_from, clk)
+NYU_META_ASSIGNABLE_CONCEPTS(has_nreset_assign_from, nReset)
 
 template <typename T>
 concept is_trace_capable = requires { T::traceCapable; } && T::traceCapable;
 
 template <typename T>
-concept can_trace =
-    is_trace_capable<T> && requires(T t) { t.trace(nullptr, 0, 0); };
+concept can_trace = is_trace_capable<T> && requires(T t) {
+  t.trace(static_cast<VerilatedTraceBaseC*>(nullptr), 0, 0);
+};
 
 template <typename T>
 concept nothrow_can_trace = is_trace_capable<T> && requires(T t) {
@@ -96,7 +109,7 @@ public:
     if constexpr(tag_invocable<eval_t, Dut&, std::size_t>) {
       return tag_invoke(*this, dut, cycles);
     } else {
-      return eval_default(dut, cycles);
+      return ::nyu::eval_default(dut, cycles);
     }
   }
 };
@@ -106,13 +119,7 @@ inline constexpr eval_t eval {};
 }
 using cpo::eval;
 
-template <typename T>
-concept can_call_eval = requires(T t) { ::nyu::eval(t); };
-
-template <typename T>
-concept nothrow_can_call_eval = requires(T t) {
-  { ::nyu::eval(t) } noexcept;
-};
+NYU_META_CALLABLE_CONCEPTS(can_call_eval, ::nyu::eval)
 
 
 // Tick
@@ -157,7 +164,7 @@ public:
     if constexpr(tag_invocable<tick_t, Dut&, std::size_t>) {
       return tag_invoke(*this, dut, cycles);
     } else {
-      return tick_default(dut, cycles);
+      return ::nyu::tick_default(dut, cycles);
     }
   }
 };
@@ -167,13 +174,7 @@ inline constexpr tick_t tick {};
 }
 using cpo::tick;
 
-template <typename T>
-concept can_call_tick = requires(T t) { ::nyu::tick(t); };
-
-template <typename T>
-concept nothrow_can_call_tick = requires(T t) {
-  { ::nyu::tick(t) } noexcept;
-};
+NYU_META_CALLABLE_CONCEPTS(can_call_tick, ::nyu::tick)
 
 
 // Reset
@@ -221,7 +222,7 @@ public:
       static_assert(sizeof...(Args) == 0,
           "nyu::reset default does not accept extra parameters; provide a "
           "tag_invoke(nyu::reset_t, Dut&, ...) overload.");
-      return reset_default(dut);
+      return ::nyu::reset_default(dut);
     }
   }
 };
@@ -231,13 +232,7 @@ inline constexpr reset_t reset {};
 }
 using cpo::reset;
 
-template <typename T>
-concept can_call_reset = requires(T t) { ::nyu::reset(t); };
-
-template <typename T>
-concept nothrow_can_call_reset = requires(T t) {
-  { ::nyu::reset(t) } noexcept;
-};
+NYU_META_CALLABLE_CONCEPTS(can_call_reset, ::nyu::reset)
 
 
 // Tracer
