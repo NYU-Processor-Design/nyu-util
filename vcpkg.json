@@ -1,6 +1,6 @@
 {
   "name": "nyu-util",
-  "version": "2.0.1",
+  "version": "2.0.2",
   "description": "NYU Processor Design's Utilities",
   "homepage": "https://github.com/NYU-Processor-Design/nyu-util",
   "maintainers": [
@@ -19,7 +19,7 @@
     "registries": [
       {
         "kind": "git",
-        "baseline": "83a1b8ad4f7be3bf2e16d4397f58e6119e001ef6",
+        "baseline": "3d3b2467282411b07926fe0b2c2089802cc883b7",
         "repository": "https://github.com/NYU-Processor-Design/nyu-registry.git",
         "packages": [
           "nyu-*"

@@ -2,7 +2,7 @@ cmake_minimum_required(VERSION 3.27)
 
 include(cmake/BootstrapVcpkg.cmake)
 
-project(nyu-util VERSION 2.0.1)
+project(nyu-util VERSION 2.0.2)
 
 find_package(Catch2 3 CONFIG REQUIRED)
 find_package(verilator CONFIG REQUIRED)
