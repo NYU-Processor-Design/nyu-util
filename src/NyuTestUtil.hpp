@@ -212,6 +212,9 @@ public:
     if constexpr(tag_invocable<reset_t, Dut&, Args...>) {
       return tag_invoke(*this, dut, std::forward<Args>(args)...);
     } else {
+      static_assert(sizeof...(Args) == 0,
+          "nyu::reset default does not accept extra parameters; provide a "
+          "tag_invoke(nyu::reset_t, Dut&, ...) overload.");
       return reset_default(dut);
     }
   }
