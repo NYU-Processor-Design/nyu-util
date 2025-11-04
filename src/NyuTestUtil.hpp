@@ -200,15 +200,17 @@ using cpo::reset_default;
 
 struct reset_t {
 private:
-  template <typename Dut> static constexpr bool is_nothrow =
-      tag_invocable<reset_t, Dut&> ? nothrow_tag_invocable<reset_t, Dut&>
-                                   : nothrow_reset_default_ok<Dut>;
+  template <typename Dut, typename... Args> static constexpr bool is_nothrow =
+      tag_invocable<reset_t, Dut&, Args...>
+      ? nothrow_tag_invocable<reset_t, Dut&, Args...>
+      : nothrow_reset_default_ok<Dut>;
 
 public:
-  template <typename Dut> constexpr decltype(auto) operator()(Dut& dut) const
-      noexcept(is_nothrow<Dut>) {
-    if constexpr(tag_invocable<reset_t, Dut&>) {
-      return tag_invoke(*this, dut);
+  template <typename Dut, typename... Args>
+  constexpr decltype(auto) operator()(Dut& dut, Args&&... args) const
+      noexcept(is_nothrow<Dut, Args...>) {
+    if constexpr(tag_invocable<reset_t, Dut&, Args...>) {
+      return tag_invoke(*this, dut, std::forward<Args>(args)...);
     } else {
       return reset_default(dut);
     }

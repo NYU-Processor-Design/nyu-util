@@ -8,7 +8,8 @@
 namespace nyu {
 struct catch2_test_name_token {};
 
-std::string tag_invoke(::nyu::get_test_name_t, ::nyu::catch2_test_name_token) {
+inline std::string tag_invoke(::nyu::get_test_name_t,
+    ::nyu::catch2_test_name_token) {
   return Catch::getResultCapture().getCurrentTestName();
 }
 
