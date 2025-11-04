@@ -106,8 +106,6 @@ inline constexpr eval_t eval {};
 }
 using cpo::eval;
 
-// Eval Concepts
-
 template <typename T>
 concept can_call_eval = requires(T t) { ::nyu::eval(t); };
 
@@ -169,6 +167,14 @@ inline constexpr tick_t tick {};
 }
 using cpo::tick;
 
+template <typename T>
+concept can_call_tick = requires(T t) { ::nyu::tick(t); };
+
+template <typename T>
+concept nothrow_can_call_tick = requires(T t) {
+  { ::nyu::tick(t) } noexcept;
+};
+
 
 // Reset
 
@@ -224,6 +230,14 @@ namespace cpo {
 inline constexpr reset_t reset {};
 }
 using cpo::reset;
+
+template <typename T>
+concept can_call_reset = requires(T t) { ::nyu::reset(t); };
+
+template <typename T>
+concept nothrow_can_call_reset = requires(T t) {
+  { ::nyu::reset(t) } noexcept;
+};
 
 
 // Tracer
