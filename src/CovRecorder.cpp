@@ -24,7 +24,7 @@ public:
 private:
   std::string makeFileName(const std::string& testName) {
     std::string fileName(testName.size(), '\0');
-    std::string unsafe {"/<>:\"\\|?*"};
+    std::string unsafe {R"(/<>:"\|?*)"};
     std::transform(testName.begin(), testName.end(), fileName.begin(),
         [&](char c) { return unsafe.find(c) == std::string::npos ? c : '_'; });
     return fileName + ".dat";

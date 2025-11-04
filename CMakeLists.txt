@@ -21,7 +21,9 @@ target_include_directories(testutil INTERFACE ${VERILATOR_ROOT}/include)
 target_sources(testutil INTERFACE
   FILE_SET HEADERS
   BASE_DIRS src
-  FILES src/NyuTestUtil.hpp
+  FILES
+    src/NyuTestUtil.hpp
+    src/NyuCatch2TestUtil.hpp
 )
 
 include(CMakePackageConfigHelpers)
