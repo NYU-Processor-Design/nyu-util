@@ -49,15 +49,21 @@ namespace nyu {
     { (FUNCTION)(t, static_cast<Args&&>(as)...) } noexcept;                    \
   };
 
+
 // Concepts
 
-template <typename Tag, typename... Args>
-concept tag_invocable =
-    requires(Tag t, Args&&... as) { tag_invoke(t, std::forward<Args>(as)...); };
+template <class Tag, class... Args>
+concept tag_invocable = requires(Tag&& tag, Args&&... args) {
+  tag_invoke(std::forward<Tag>(tag), std::forward<Args>(args)...);
+};
 
-template <typename Tag, typename... Args>
-concept nothrow_tag_invocable = tag_invocable<Tag, Args...> &&
-    noexcept(tag_invoke(std::declval<Tag>(), std::declval<Args>()...));
+template <class Tag, class... Args>
+concept nothrow_tag_invocable =
+    tag_invocable<Tag, Args...> && requires(Tag&& tag, Args&&... args) {
+      {
+        tag_invoke(std::forward<Tag>(tag), std::forward<Args>(args)...)
+      } noexcept;
+    };
 
 NYU_META_MEMBER_CALLABLE_CONCEPTS(has_eval, eval)
 NYU_META_ASSIGNABLE_CONCEPTS(has_clk_assign_from, clk)
@@ -91,10 +97,7 @@ struct eval_default_t {
   }
 };
 
-namespace cpo {
 inline constexpr eval_default_t eval_default {};
-}
-using cpo::eval_default;
 
 struct eval_t {
 private:
@@ -146,10 +149,7 @@ struct tick_default_t {
   }
 };
 
-namespace cpo {
 inline constexpr tick_default_t tick_default {};
-}
-using cpo::tick_default;
 
 struct tick_t {
 private:
@@ -200,10 +200,7 @@ struct reset_default_t {
   }
 };
 
-namespace cpo {
 inline constexpr reset_default_t reset_default {};
-}
-using cpo::reset_default;
 
 struct reset_t {
 private:
@@ -289,8 +286,10 @@ struct dut_options {
 struct get_dut_t {
 private:
   template <typename Dut, typename NameToken> static constexpr bool is_nothrow =
-      nothrow_tag_invocable<get_dut_t, std::type_identity<Dut>, dut_options,
-          NameToken>;
+      tag_invocable<get_dut_t, std::type_identity<Dut>, dut_options, NameToken>
+      ? nothrow_tag_invocable<get_dut_t, std::type_identity<Dut>, dut_options,
+            NameToken>
+      : std::is_nothrow_default_constructible_v<Dut>;
 
   static std::string sanitize_filename(std::string_view name,
       std::string_view ext) {
@@ -319,7 +318,8 @@ private:
   }
 
   template <typename Dut>
-  static tracer<Dut>& disabled_traced_instance() noexcept {
+  static tracer<Dut>& disabled_traced_instance() noexcept(
+      std::is_nothrow_default_constructible_v<Dut>) {
     static tracer<Dut> dut;
     dut.mFst.reset();
     dut.mTime = 0;
