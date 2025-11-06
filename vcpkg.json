@@ -1,6 +1,6 @@
 {
   "name": "nyu-util",
-  "version": "2.0.4",
+  "version": "2.0.5",
   "description": "NYU Processor Design's Utilities",
   "homepage": "https://github.com/NYU-Processor-Design/nyu-util",
   "maintainers": [
@@ -13,13 +13,13 @@
   "vcpkg-configuration": {
     "default-registry": {
       "kind": "git",
-      "baseline": "b27f6bfad367d64f8f0f3296351c5d246e182bb4",
+      "baseline": "c76ea2f16f17f457721dfba9c0dae728fd32fd31",
       "repository": "https://github.com/microsoft/vcpkg.git"
     },
     "registries": [
       {
         "kind": "git",
-        "baseline": "3d3b2467282411b07926fe0b2c2089802cc883b7",
+        "baseline": "65185af6b9b8e89506de3e42e52e6b617b333be4",
         "repository": "https://github.com/NYU-Processor-Design/nyu-registry.git",
         "packages": [
           "nyu-*"
