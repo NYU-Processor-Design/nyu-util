@@ -2,7 +2,7 @@ cmake_minimum_required(VERSION 3.27)
 
 include(cmake/BootstrapVcpkg.cmake)
 
-project(nyu-util VERSION 2.1.0)
+project(nyu-util VERSION 2.1.1)
 
 option(NYU_BUILD_TESTS "Generate tests" OFF)
 option(NYU_GEN_TRACES "Generate FST traces from tests" OFF)
