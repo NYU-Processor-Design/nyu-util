@@ -4,6 +4,15 @@ include(cmake/BootstrapVcpkg.cmake)
 
 project(nyu-util VERSION 2.0.5)
 
+option(NYU_BUILD_TESTS "Generate tests" OFF)
+option(NYU_GEN_TRACES "Generate FST traces from tests" OFF)
+
+if(NYU_GEN_TRACES)
+  set(_traces_option TRACE_FST)
+else()
+  set(_traces_option)
+endif()
+
 find_package(Catch2 3 CONFIG REQUIRED)
 find_package(verilator CONFIG REQUIRED)
 
@@ -25,6 +34,11 @@ target_sources(testutil INTERFACE
     src/NyuTestUtil.hpp
     src/NyuCatch2TestUtil.hpp
 )
+
+if(NYU_BUILD_TESTS)
+  enable_testing()
+  add_subdirectory(test)
+endif()
 
 include(CMakePackageConfigHelpers)
 include(GNUInstallDirs)

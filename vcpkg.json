@@ -8,18 +8,19 @@
   ],
   "license": "CC0-1.0",
   "dependencies": [
-    "catch2"
+    "catch2",
+    "nyu-cmake"
   ],
   "vcpkg-configuration": {
     "default-registry": {
       "kind": "git",
-      "baseline": "c76ea2f16f17f457721dfba9c0dae728fd32fd31",
+      "baseline": "365f6444ab40ee87c73c947b475b3a267b3cb77c",
       "repository": "https://github.com/microsoft/vcpkg.git"
     },
     "registries": [
       {
         "kind": "git",
-        "baseline": "65185af6b9b8e89506de3e42e52e6b617b333be4",
+        "baseline": "12a0fd2c4ab895906aafd0a87eabdc1ebf803c03",
         "repository": "https://github.com/NYU-Processor-Design/nyu-registry.git",
         "packages": [
           "nyu-*"
