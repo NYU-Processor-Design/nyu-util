@@ -14,8 +14,9 @@ inline std::string tag_invoke(::nyu::get_test_name_t,
   return Catch::getResultCapture().getCurrentTestName();
 }
 
-template <typename Dut> decltype(auto) get_dut_catch2(dut_options opts = {}) {
-  return ::nyu::get_dut<Dut>(std::move(opts), ::nyu::catch2_test_name_token);
+template <typename Dut>
+decltype(auto) get_dut_catch2(const dut_options& opts = {}) {
+  return ::nyu::get_dut<Dut>(opts, ::nyu::catch2_test_name_token);
 }
 
 } // namespace nyu
