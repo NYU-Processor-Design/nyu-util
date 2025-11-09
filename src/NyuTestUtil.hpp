@@ -155,12 +155,16 @@ private:
       : nothrow_tick_default_ok<Dut>;
 
 public:
-  template <typename Dut>
-  constexpr decltype(auto) operator()(Dut&& dut, std::size_t cycles = 1) const
-      noexcept(is_nothrow<Dut&&>) {
-    if constexpr(tag_invocable<tick_t, Dut&&, std::size_t>) {
-      return tag_invoke(*this, std::forward<Dut>(dut), cycles);
+  template <typename Dut, typename... Args>
+  constexpr decltype(auto) operator()(Dut&& dut, std::size_t cycles = 1,
+      Args&&... args) const noexcept(is_nothrow<Dut&&>) {
+    if constexpr(tag_invocable<tick_t, Dut&&, std::size_t, Args&&...>) {
+      return tag_invoke(*this, std::forward<Dut>(dut), cycles,
+          std::forward<Args>(args)...);
     } else {
+      static_assert(sizeof...(Args) == 0,
+          "nyu::tick default does not accept extra parameters; provide a "
+          "tag_invoke(nyu::tick_t, Dut&&, cycles, ...) overload.");
       return ::nyu::tick_default(std::forward<Dut>(dut), cycles);
     }
   }
@@ -227,7 +231,7 @@ public:
     } else {
       static_assert(sizeof...(Args) == 0,
           "nyu::reset default does not accept extra parameters; provide a "
-          "tag_invoke(nyu::reset_t, Dut&, ...) overload.");
+          "tag_invoke(nyu::reset_t, Dut&&, ...) overload.");
       return ::nyu::reset_default(std::forward<Dut>(dut));
     }
   }
